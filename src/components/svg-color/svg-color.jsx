@@ -1,12 +1,12 @@
 import PropTypes from 'prop-types';
 import { forwardRef } from 'react';
 
-import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
 
 // ----------------------------------------------------------------------
 
 const SvgColor = forwardRef(({ src, sx, ...other }, ref) => (
-  <Box
+  <Stack
     component="span"
     className="svg-color"
     ref={ref}

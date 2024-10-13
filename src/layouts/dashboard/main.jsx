@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
 
 import { useResponsive } from 'src/hooks/use-responsive';
 
@@ -14,7 +14,7 @@ export default function Main({ children, sx, ...other }) {
   const lgUp = useResponsive('up', 'lg');
 
   return (
-    <Box
+    <Stack
       component="main"
       sx={{
         flexGrow: 1,
@@ -32,7 +32,7 @@ export default function Main({ children, sx, ...other }) {
       {...other}
     >
       {children}
-    </Box>
+    </Stack>
   );
 }
 

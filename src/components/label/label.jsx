@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { forwardRef } from 'react';
 
-import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
 import { useTheme } from '@mui/material/styles';
 
 import { StyledLabel } from './styles';
@@ -31,11 +31,11 @@ const Label = forwardRef(
         theme={theme}
         {...other}
       >
-        {startIcon && <Box sx={{ mr: 0.75, ...iconStyles }}> {startIcon} </Box>}
+        {startIcon && <Stack sx={{ mr: 0.75, ...iconStyles }}> {startIcon} </Stack>}
 
         {children}
 
-        {endIcon && <Box sx={{ ml: 0.75, ...iconStyles }}> {endIcon} </Box>}
+        {endIcon && <Stack sx={{ ml: 0.75, ...iconStyles }}> {endIcon} </Stack>}
       </StyledLabel>
     );
   }

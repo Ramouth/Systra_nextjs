@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 
-import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Drawer from '@mui/material/Drawer';
 import Avatar from '@mui/material/Avatar';
@@ -26,6 +26,7 @@ import navConfig from './config-navigation';
 
 export default function Nav({ openNav, onCloseNav }) {
   const pathname = usePathname();
+  const navigate = useNavigate();
 
   const upLg = useResponsive('up', 'lg');
 
@@ -36,8 +37,14 @@ export default function Nav({ openNav, onCloseNav }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
+  const handleLogout = () => {
+    localStorage.removeItem('isLoggedIn');
+    navigate('/login');
+  };
+
   const renderAccount = (
-    <Box
+    <Stack
+      direction="row"
       sx={{
         my: 3,
         mx: 2.5,
@@ -51,25 +58,23 @@ export default function Nav({ openNav, onCloseNav }) {
     >
       <Avatar src={account.photoURL} alt="photoURL" />
 
-      <Box sx={{ ml: 2 }}>
+      <Stack sx={{ ml: 2 }}>
         <Typography variant="subtitle2">{account.displayName}</Typography>
 
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
           {account.role}
         </Typography>
-      </Box>
-    </Box>
+      </Stack>
+    </Stack>
   );
 
   const renderMenu = (
     <Stack component="nav" spacing={0.5} sx={{ px: 2 }}>
       {navConfig.map((item) => (
-        <NavItem key={item.title} item={item} />
+        <NavItem key={item.title} item={item} onLogout={handleLogout} />
       ))}
     </Stack>
   );
-
-  
 
   const renderContent = (
     <Scrollbar
@@ -87,20 +92,18 @@ export default function Nav({ openNav, onCloseNav }) {
       {renderAccount}
 
       {renderMenu}
-
-
     </Scrollbar>
   );
 
   return (
-    <Box
+    <Stack
       sx={{
         flexShrink: { lg: 0 },
         width: { lg: NAV.WIDTH },
       }}
     >
       {upLg ? (
-        <Box
+        <Stack
           sx={{
             height: 1,
             position: 'fixed',
@@ -109,7 +112,7 @@ export default function Nav({ openNav, onCloseNav }) {
           }}
         >
           {renderContent}
-        </Box>
+        </Stack>
       ) : (
         <Drawer
           open={openNav}
@@ -123,7 +126,7 @@ export default function Nav({ openNav, onCloseNav }) {
           {renderContent}
         </Drawer>
       )}
-    </Box>
+    </Stack>
   );
 }
 
@@ -134,15 +137,23 @@ Nav.propTypes = {
 
 // ----------------------------------------------------------------------
 
-function NavItem({ item }) {
+function NavItem({ item, onLogout }) {
   const pathname = usePathname();
 
   const active = item.path === pathname;
 
+  const handleClick = (e) => {
+    if (item.title === 'logout') {
+      e.preventDefault();
+      onLogout();
+    }
+  };
+
   return (
     <ListItemButton
-      component={RouterLink}
+      component={item.title !== 'logout' ? RouterLink : 'a'}
       href={item.path}
+      onClick={handleClick}
       sx={{
         minHeight: 44,
         borderRadius: 0.75,
@@ -160,15 +171,16 @@ function NavItem({ item }) {
         }),
       }}
     >
-      <Box component="span" sx={{ width: 24, height: 24, mr: 2 }}>
+      <Stack component="span" sx={{ width: 24, height: 24, mr: 2 }}>
         {item.icon}
-      </Box>
+      </Stack>
 
-      <Box component="span">{item.title} </Box>
+      <Stack component="span">{item.title} </Stack>
     </ListItemButton>
   );
 }
 
 NavItem.propTypes = {
   item: PropTypes.object,
+  onLogout: PropTypes.func,
 };

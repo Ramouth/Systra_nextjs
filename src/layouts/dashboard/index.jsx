@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 
-import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
 
 import Nav from './nav';
 import Main from './main';
 import Header from './header';
+
 
 // ----------------------------------------------------------------------
 
@@ -16,7 +17,7 @@ export default function DashboardLayout({ children }) {
     <>
       <Header onOpenNav={() => setOpenNav(true)} />
 
-      <Box
+      <Stack
         sx={{
           minHeight: 1,
           display: 'flex',
@@ -26,7 +27,7 @@ export default function DashboardLayout({ children }) {
         <Nav openNav={openNav} onCloseNav={() => setOpenNav(false)} />
 
         <Main>{children}</Main>
-      </Box>
+      </Stack>
     </>
   );
 }

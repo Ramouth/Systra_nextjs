@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 
-import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import Stack from '@mui/material/Stack';
 import CardHeader from '@mui/material/CardHeader';
 
 import Chart, { useChart } from 'src/components/chart';
@@ -44,7 +44,7 @@ export default function AppWebsiteVisits({ title, subheader, chart, ...other }) 
     <Card {...other}>
       <CardHeader title={title} subheader={subheader} />
 
-      <Box sx={{ p: 3, pb: 1 }}>
+      <Stack sx={{ p: 3, pb: 1 }}>
         <Chart
           dir="ltr"
           type="line"
@@ -53,7 +53,7 @@ export default function AppWebsiteVisits({ title, subheader, chart, ...other }) 
           width="100%"
           height={364}
         />
-      </Box>
+      </Stack>
     </Card>
   );
 }

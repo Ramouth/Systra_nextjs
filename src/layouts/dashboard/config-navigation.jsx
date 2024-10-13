@@ -7,16 +7,11 @@ const icon = (name) => (
 );
 
 const navConfig = [
-  {
-    title: 'dashboard',
-    path: '/',
-    icon: icon('ic_analytics'),
-  },
-  {
-    title: 'user',
-    path: '/user',
-    icon: icon('ic_user'),
-  },
+  // {
+  //   title: 'dashboard',
+  //   path: '/',
+  //   icon: icon('ic_analytics'),
+  // },
   {
     title: 'wbs',
     path: '/wbs',
@@ -24,14 +19,9 @@ const navConfig = [
   },
   
   {
-    title: 'login',
-    path: '/login',
+    title: 'logout',
+    path: '/logout',
     icon: icon('ic_lock'),
-  },
-  {
-    title: 'Not found',
-    path: '/404',
-    icon: icon('ic_disabled'),
   },
 ];
 

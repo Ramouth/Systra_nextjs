@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
 import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import TableHead from '@mui/material/TableHead';
@@ -50,9 +50,9 @@ export default function WbsTableHead({
             >
               {headCell.label}
               {orderBy === headCell.id ? (
-                <Box sx={{ ...visuallyHidden }}>
+                <Stack sx={{ ...visuallyHidden }}>
                   {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                </Box>
+                </Stack>
               ) : null}
             </TableSortLabel>
           </TableCell>

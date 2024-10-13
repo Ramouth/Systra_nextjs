@@ -1,9 +1,9 @@
-import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
 import { alpha, styled } from '@mui/material/styles';
 
 // ----------------------------------------------------------------------
 
-export const StyledLabel = styled(Box)(({ theme, ownerState }) => {
+export const StyledLabel = styled(Stack)(({ theme, ownerState }) => {
   const lightMode = theme.palette.mode === 'light';
 
   const filledVariant = ownerState.variant === 'filled';

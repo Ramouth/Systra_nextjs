@@ -1,4 +1,4 @@
-import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -11,7 +11,7 @@ import Logo from 'src/components/logo';
 
 export default function NotFoundView() {
   const renderHeader = (
-    <Box
+    <Stack
       component="header"
       sx={{
         top: 0,
@@ -23,7 +23,7 @@ export default function NotFoundView() {
       }}
     >
       <Logo />
-    </Box>
+    </Stack>
   );
 
   return (
@@ -31,7 +31,7 @@ export default function NotFoundView() {
       {renderHeader}
 
       <Container>
-        <Box
+        <Stack
           sx={{
             py: 12,
             maxWidth: 480,
@@ -53,7 +53,7 @@ export default function NotFoundView() {
             sure to check your spelling.
           </Typography>
 
-          <Box
+          <Stack
             component="img"
             src="/assets/illustrations/illustration_404.svg"
             sx={{
@@ -66,7 +66,7 @@ export default function NotFoundView() {
           <Button href="/" size="large" variant="contained" component={RouterLink}>
             Go to Home
           </Button>
-        </Box>
+        </Stack>
       </Container>
     </>
   );

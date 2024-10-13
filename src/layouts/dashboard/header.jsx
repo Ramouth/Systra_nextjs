@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types';
 
-import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -34,7 +33,7 @@ export default function Header({ onOpenNav }) {
 
       <Searchbar />
 
-      <Box sx={{ flexGrow: 1 }} />
+      <Stack sx={{ flexGrow: 1 }} />
 
       <Stack direction="row" alignItems="center" spacing={1}>
         <AccountPopover />
