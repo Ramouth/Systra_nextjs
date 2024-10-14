@@ -11,7 +11,7 @@ import {
 
 import Iconify from 'src/components/iconify';
 
-export default function WbsTableToolbar({ numSelected, filterName, onFilterName, onDeleteSelected }) {
+export default function TemplateTableToolbar({ numSelected, filterName, onFilterName, onDeleteSelected }) {
   return (
     <Toolbar
       sx={{
@@ -27,13 +27,13 @@ export default function WbsTableToolbar({ numSelected, filterName, onFilterName,
     >
       {numSelected > 0 ? (
         <Typography component="div" variant="subtitle1">
-          {numSelected} selected
+          {numSelected} template{numSelected > 1 ? 's' : ''} selected
         </Typography>
       ) : (
         <OutlinedInput
           value={filterName}
           onChange={onFilterName}
-          placeholder="Search WBS..."
+          placeholder="Search templates..."
           startAdornment={
             <InputAdornment position="start">
               <Iconify
@@ -45,16 +45,10 @@ export default function WbsTableToolbar({ numSelected, filterName, onFilterName,
         />
       )}
 
-      {numSelected > 0 ? (
+      {numSelected > 0 && (
         <Tooltip title="Delete">
           <IconButton onClick={onDeleteSelected}>
             <Iconify icon="eva:trash-2-fill" />
-          </IconButton>
-        </Tooltip>
-      ) : (
-        <Tooltip title="Filter list">
-          <IconButton>
-            <Iconify icon="ic:round-filter-list" />
           </IconButton>
         </Tooltip>
       )}
@@ -62,7 +56,7 @@ export default function WbsTableToolbar({ numSelected, filterName, onFilterName,
   );
 }
 
-WbsTableToolbar.propTypes = {
+TemplateTableToolbar.propTypes = {
   numSelected: PropTypes.number,
   filterName: PropTypes.string,
   onFilterName: PropTypes.func,

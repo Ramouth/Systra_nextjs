@@ -113,8 +113,8 @@ const ActivityRow = ({ activity, level, parentIndex, onEdit, onDelete, onAddSubA
           <TableRow>
             <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={10}>
               <Collapse in={open} timeout="auto" unmountOnExit>
-                <Box sx={{ margin: 1 }}>
-                  <Table size="small">
+                {/* <Box sx={{ margin: 1 }}> */}
+                  <Table size="medium">
                     <NestedActivityList
                       activities={activity.sub_activities}
                       parentId={activity.activityID}
@@ -125,7 +125,7 @@ const ActivityRow = ({ activity, level, parentIndex, onEdit, onDelete, onAddSubA
                       onAddSubActivity={onAddSubActivity}
                     />
                   </Table>
-                </Box>
+                {/* </Box> */}
               </Collapse>
             </TableCell>
           </TableRow>
@@ -439,6 +439,7 @@ export default function ActivityView() {
         onSubmit={handleFormSubmit}
         activity={editingActivity}
         wbsId={wbsId}
+        isSubActivity={!!parentActivity}
       />
     </Container>
   );

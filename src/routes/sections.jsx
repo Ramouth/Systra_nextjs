@@ -55,6 +55,7 @@ import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 import DashboardLayout from 'src/layouts/dashboard';
 
 export const WbsPage = lazy(() => import('src/pages/wbs'));
+export const TemplatePage = lazy(() => import('src/pages/template'));
 export const LoginPage = lazy(() => import('src/pages/login'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
 export const ActivityPage = lazy(() => import('src/pages/activities'));
@@ -87,6 +88,7 @@ export default function Router() {
         </ProtectedRoute>
       ),
       children: [
+        { path: 'template', element: <TemplatePage /> },
         { path: 'wbs', element: <WbsPage /> },
         { path: 'activities/:wbsId', element: <ActivityPage /> },
       ],

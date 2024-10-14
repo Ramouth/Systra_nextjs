@@ -13,6 +13,11 @@ const navConfig = [
   //   icon: icon('ic_analytics'),
   // },
   {
+    title: 'template',
+    path: '/template',
+    icon: icon('ic_blog'),
+  },
+  {
     title: 'wbs',
     path: '/wbs',
     icon: icon('ic_analytics'),

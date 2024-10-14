@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 
 import {
-  Stack,
   Popover,
   TableRow,
   Checkbox,
@@ -14,7 +13,7 @@ import {
 
 import Iconify from 'src/components/iconify';
 
-export default function WbsTableRow({ row, selected, handleClick, onView, onEdit, onDelete, templateName }) {
+export default function TemplateTableRow({ row, selected, handleClick, onEdit, onDelete }) {
   const [open, setOpen] = useState(null);
 
   const handleOpenMenu = (event) => {
@@ -28,30 +27,24 @@ export default function WbsTableRow({ row, selected, handleClick, onView, onEdit
   return (
     <>
       <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
-      <TableCell padding="checkbox" sx={{ pl: 3 }}>
-      <Checkbox disableRipple checked={selected} onChange={(event) => handleClick(event, row.wbsId)} />
+        <TableCell padding="checkbox" sx={{ pl: 3 }}>
+          <Checkbox 
+            disableRipple 
+            checked={selected} 
+            onChange={(event) => handleClick(event, row.templateId)} 
+          />
         </TableCell>
 
         <TableCell component="th" scope="row" padding="none" align="left" sx={{ pl: 2 }}>
           <Typography variant="subtitle2" noWrap>
-            {row.name}
+            {row.templateName}
           </Typography>
         </TableCell>
 
-        <TableCell align="left">{row.date}</TableCell>
-        <TableCell align="left">{templateName}</TableCell>
-
-        <TableCell align="center">{row.activities.length}</TableCell>
-
         <TableCell align="center">
-          <Stack direction="row" spacing={1} justifyContent="center">
-            <IconButton onClick={onView}>
-              <Iconify icon="eva:external-link-fill" />
-            </IconButton>
-            <IconButton onClick={handleOpenMenu}>
-              <Iconify icon="eva:more-vertical-fill" />
-            </IconButton>
-          </Stack>
+          <IconButton onClick={handleOpenMenu}>
+            <Iconify icon="eva:more-vertical-fill" />
+          </IconButton>
         </TableCell>
       </TableRow>
 
@@ -65,11 +58,11 @@ export default function WbsTableRow({ row, selected, handleClick, onView, onEdit
           sx: { width: 140 },
         }}
       >
-        <MenuItem onClick={() => { onEdit(); handleCloseMenu(); }}>
+        <MenuItem onClick={() => { onEdit(row); handleCloseMenu(); }}>
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
           Edit
         </MenuItem>
-        <MenuItem onClick={() => { onDelete(); handleCloseMenu(); }} sx={{ color: 'error.main' }}>
+        <MenuItem onClick={() => { onDelete(row.templateId); handleCloseMenu(); }} sx={{ color: 'error.main' }}>
           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
           Delete
         </MenuItem>
@@ -78,12 +71,13 @@ export default function WbsTableRow({ row, selected, handleClick, onView, onEdit
   );
 }
 
-WbsTableRow.propTypes = {
-  row: PropTypes.object.isRequired,
+TemplateTableRow.propTypes = {
+  row: PropTypes.shape({
+    templateId: PropTypes.number.isRequired,
+    templateName: PropTypes.string.isRequired,
+  }).isRequired,
   selected: PropTypes.bool.isRequired,
   handleClick: PropTypes.func.isRequired,
-  onView: PropTypes.func.isRequired,
   onEdit: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
-  templateName: PropTypes.string,
 };

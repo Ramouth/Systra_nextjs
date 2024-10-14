@@ -4,30 +4,42 @@ import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   Button,
+  Select,
+  MenuItem,
   TextField,
+  InputLabel,
   DialogTitle,
+  FormControl,
   DialogContent,
   DialogActions,
 } from '@mui/material';
 
-import { createWbs, updateWbs } from '../../../api/wbsApi';
+import { createWbs, updateWbs, fetchTemplates } from '../../../api/wbsApi';
 
 const WbsForm = ({ open, onClose, onSubmit, wbs }) => {
   const [formData, setFormData] = useState({
     name: '',
     date: '',
+    templateId: '',
   });
+  const [templates, setTemplates] = useState([]);
+
+  useEffect(() => {
+    fetchTemplates().then(setTemplates);
+  }, []);
 
   useEffect(() => {
     if (wbs) {
       setFormData({
         name: wbs.name || '',
         date: wbs.date || '',
+        templateId: wbs.templateId || '',
       });
     } else {
       setFormData({
         name: '',
         date: '',
+        templateId: '',
       });
     }
   }, [wbs]);
@@ -43,10 +55,15 @@ const WbsForm = ({ open, onClose, onSubmit, wbs }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const dataToSubmit = { ...formData };
+      if (!dataToSubmit.templateId) {
+        delete dataToSubmit.templateId;
+      }
+
       if (wbs) {
-        await updateWbs(wbs.wbsId, { ...formData, wbsId: wbs.wbsId });
+        await updateWbs(wbs.wbsId, { ...dataToSubmit, wbsId: wbs.wbsId });
       } else {
-        await createWbs(formData);
+        await createWbs(dataToSubmit);
       }
       onSubmit();
     } catch (error) {
@@ -83,6 +100,26 @@ const WbsForm = ({ open, onClose, onSubmit, wbs }) => {
             }}
             required
           />
+          <FormControl fullWidth margin="dense">
+            <InputLabel id="template-select-label">Template</InputLabel>
+            <Select
+              labelId="template-select-label"
+              id="template-select"
+              name="templateId"
+              value={formData.templateId}
+              onChange={handleChange}
+              label="Template"
+            >
+              <MenuItem value="">
+                <em>None</em>
+              </MenuItem>
+              {templates.map((template) => (
+                <MenuItem key={template.templateId} value={template.templateId}>
+                  {template.templateName}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>
@@ -103,6 +140,7 @@ WbsForm.propTypes = {
     wbsId: PropTypes.number,
     name: PropTypes.string,
     date: PropTypes.string,
+    templateId: PropTypes.number,
   }),
 };
 

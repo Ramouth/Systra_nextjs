@@ -12,7 +12,7 @@ import {
     DialogActions,
 } from '@mui/material';
 
-function ActivityForm({ open, onClose, onSubmit, activity, wbsId }) {
+function ActivityForm({ open, onClose, onSubmit, activity, wbsId, isSubActivity }) {
     const [formData, setFormData] = useState({
         activityName: '',
         indexNo: '',
@@ -111,6 +111,7 @@ function ActivityForm({ open, onClose, onSubmit, activity, wbsId }) {
                                 rows={4}
                                 value={formData.description}
                                 onChange={handleChange}
+                                required
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
@@ -144,6 +145,7 @@ function ActivityForm({ open, onClose, onSubmit, activity, wbsId }) {
                                 fullWidth
                                 value={formData.cadAdmins}
                                 onChange={handleChange}
+                                disabled={!isSubActivity}
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
@@ -155,6 +157,7 @@ function ActivityForm({ open, onClose, onSubmit, activity, wbsId }) {
                                 fullWidth
                                 value={formData.cadCoords}
                                 onChange={handleChange}
+                                disabled={!isSubActivity}
                             />
                         </Grid>
                         <Grid item xs={12}>
@@ -187,6 +190,7 @@ ActivityForm.propTypes = {
     onSubmit: PropTypes.func.isRequired,
     activity: PropTypes.object,
     wbsId: PropTypes.string.isRequired,
+    isSubActivity: PropTypes.bool.isRequired,
 };
 
 export default ActivityForm;
