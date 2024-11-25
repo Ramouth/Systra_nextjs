@@ -42,6 +42,7 @@ import ActivityForm from './activity-form';
 import ActivityTableToolbar from '../activity-table-toolbar';
 
 
+// actvity row function 
 const ActivityRow = ({ activity, level, parentIndex, onEdit, onDelete, onAddSubActivity, provided }) => {
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
