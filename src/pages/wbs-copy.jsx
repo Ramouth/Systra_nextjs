@@ -1,17 +1,17 @@
 import { Helmet } from 'react-helmet-async';
 
-import { TemplateView } from 'src/sections/template/view';
+import { WbsView } from 'src/sections/wbs-copy/view';
 
 // ----------------------------------------------------------------------
 
-export default function TemplatePage() {
+export default function WbsPage() {
   return (
     <>
       <Helmet>
-        <title> Template | Systra </title>
+        <title> Wbs | Systra </title>
       </Helmet>
 
-      <TemplateView />
+      <WbsView />
     </>
   );
 }

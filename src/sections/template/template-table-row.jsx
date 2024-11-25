@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 
 import {
+  Stack,
   Popover,
   TableRow,
   Checkbox,
@@ -13,7 +14,7 @@ import {
 
 import Iconify from 'src/components/iconify';
 
-export default function TemplateTableRow({ row, selected, handleClick, onEdit, onDelete }) {
+export default function TemplateTableRow({ row, selected, handleClick, onView, onEdit, onDelete }) {
   const [open, setOpen] = useState(null);
 
   const handleOpenMenu = (event) => {
@@ -42,9 +43,14 @@ export default function TemplateTableRow({ row, selected, handleClick, onEdit, o
         </TableCell>
 
         <TableCell align="center">
-          <IconButton onClick={handleOpenMenu}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
+          <Stack direction="row" spacing={1} justifyContent="center">
+            <IconButton onClick={onView}>
+              <Iconify icon="eva:external-link-fill" />
+            </IconButton>
+            <IconButton onClick={handleOpenMenu}>
+              <Iconify icon="eva:more-vertical-fill" />
+            </IconButton>
+          </Stack>
         </TableCell>
       </TableRow>
 
@@ -78,6 +84,7 @@ TemplateTableRow.propTypes = {
   }).isRequired,
   selected: PropTypes.bool.isRequired,
   handleClick: PropTypes.func.isRequired,
+  onView: PropTypes.func.isRequired,
   onEdit: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
 };

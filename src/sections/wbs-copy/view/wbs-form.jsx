@@ -14,15 +14,13 @@ import {
   DialogActions,
 } from '@mui/material';
 
-import { createWbs, updateWbs, fetchTemplates } from '../../../api/wbsApi';
+import { createWbsCopy, updateWbsCopy, fetchTemplates } from '../../../api/wbsApi';
 
 const WbsForm = ({ open, onClose, onSubmit, wbs }) => {
   const [formData, setFormData] = useState({
     name: '',
     date: '',
     templateId: '',
-    cadAdmins: '',
-    cadCoords: '' 
   });
   const [templates, setTemplates] = useState([]);
 
@@ -36,16 +34,12 @@ const WbsForm = ({ open, onClose, onSubmit, wbs }) => {
         name: wbs.name || '',
         date: wbs.date || '',
         templateId: wbs.templateId || '',
-        cadAdmins: wbs.cadAdmins || '',
-        cadCoords: wbs.cadCoords || ''
       });
     } else {
       setFormData({
         name: '',
         date: '',
         templateId: '',
-        cadAdmins: '',
-        cadCoords: ''
       });
     }
   }, [wbs]);
@@ -67,9 +61,9 @@ const WbsForm = ({ open, onClose, onSubmit, wbs }) => {
       }
 
       if (wbs) {
-        await updateWbs(wbs.wbsId, { ...dataToSubmit, wbsId: wbs.wbsId });
+        await updateWbsCopy(wbs.wbsId, { ...dataToSubmit, wbsId: wbs.wbsId });
       } else {
-        await createWbs(dataToSubmit);
+        await createWbsCopy(dataToSubmit);
       }
       onSubmit();
     } catch (error) {
@@ -106,26 +100,6 @@ const WbsForm = ({ open, onClose, onSubmit, wbs }) => {
             }}
             required
           />
-          <TextField
-              margin="dense"
-              name="cadAdmins"
-              label="CAD Admins"
-              type="text"
-              fullWidth
-              value={formData.cadAdmins}
-              onChange={handleChange}
-            />
-            
-            <TextField
-              margin="dense"
-              name="cadCoords"
-              label="CAD Coords"
-              type="text"
-              fullWidth
-              value={formData.cadCoords}
-              onChange={handleChange}
-            />
-            
           <FormControl fullWidth margin="dense">
             <InputLabel id="template-select-label">Template</InputLabel>
             <Select
@@ -146,6 +120,28 @@ const WbsForm = ({ open, onClose, onSubmit, wbs }) => {
               ))}
             </Select>
           </FormControl>
+          <TextField
+            autoFocus
+            margin="dense"
+            name="CAD Admins"
+            label="CAD Admins"
+            type="text"
+            fullWidth
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+           <TextField
+            autoFocus
+            margin="dense"
+            name="CAD Coords"
+            label="CAD Coords"
+            type="text"
+            fullWidth
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>
@@ -167,8 +163,6 @@ WbsForm.propTypes = {
     name: PropTypes.string,
     date: PropTypes.string,
     templateId: PropTypes.number,
-    cadAdmins: PropTypes.string,
-    cadCoords: PropTypes.string
   }),
 };
 

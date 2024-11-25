@@ -13,13 +13,9 @@ import {
 } from '@mui/material';
 
 import Iconify from 'src/components/iconify';
-import SaveModal from 'src/components/save-modal';
 
-
-export default function WbsTableRow({ row, selected, handleClick, onView, onEdit, onDelete, onSave,  templateName, templates }) {
+export default function WbsTableRow({ row, selected, handleClick, onView, onEdit, onDelete, templateName }) {
   const [open, setOpen] = useState(null);
-  const [saveModalOpen, setSaveModalOpen] = useState(false);
-
 
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
@@ -27,12 +23,6 @@ export default function WbsTableRow({ row, selected, handleClick, onView, onEdit
 
   const handleCloseMenu = () => {
     setOpen(null);
-  };
-
-  const handleSave = (templateData) => {
-    onSave(row.wbsId, templateData);
-    setSaveModalOpen(false);
-    handleCloseMenu();
   };
 
   return (
@@ -79,22 +69,11 @@ export default function WbsTableRow({ row, selected, handleClick, onView, onEdit
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
           Edit
         </MenuItem>
-        <MenuItem onClick={() => { setSaveModalOpen(true); handleCloseMenu(); }}>
-          <Iconify icon="eva:save-fill" sx={{ mr: 2 }} />
-          Save
-        </MenuItem>
         <MenuItem onClick={() => { onDelete(); handleCloseMenu(); }} sx={{ color: 'error.main' }}>
           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
           Delete
         </MenuItem>
       </Popover>
-
-      <SaveModal
-        open={saveModalOpen}
-        onClose={() => setSaveModalOpen(false)}
-        onSave={handleSave}
-        templates={templates}
-      />
     </>
   );
 }
@@ -105,8 +84,6 @@ WbsTableRow.propTypes = {
   handleClick: PropTypes.func.isRequired,
   onView: PropTypes.func.isRequired,
   onEdit: PropTypes.func.isRequired,
-  onSave: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
   templateName: PropTypes.string,
-  templates: PropTypes.array.isRequired,
 };

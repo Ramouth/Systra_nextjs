@@ -1,5 +1,5 @@
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 
 import {
   Card,
@@ -18,44 +18,58 @@ import {
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
-import TemplateForm from './template-form';
+import WbsForm from './wbs-form';
 import TableNoData from '../table-no-data';
+import WbsTableRow from '../wbs-table-row';
+import WbsTableHead from '../wbs-table-head';
 import TableEmptyRows from '../table-empty-rows';
-import TemplateTableRow from '../template-table-row';
-import TemplateTableHead from '../template-table-head';
-import TemplateTableToolbar from '../template-table-toolbar';
+import WbsTableToolbar from '../wbs-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
-import { deleteTemplate, fetchTemplates } from '../../../api/wbsApi';
+import { deleteWbsCopy, fetchTemplates, fetchWbsCopyList } from '../../../api/wbsApi';
 
-export default function TemplatePage() {
+export default function WbsPage() {
+  const { templateId } = useParams();
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
-  const [orderBy, setOrderBy] = useState('templateName');
+  const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [templateList, setTemplateList] = useState([]);
+  const [wbsList, setWbsList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingTemplate, setEditingTemplate] = useState(null);
+  const [editingWbs, setEditingWbs] = useState(null);
+  const [templates, setTemplates] = useState([]);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadTemplateList();
+    loadWbsList();
+    loadTemplates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadTemplateList = async () => {
+  const loadWbsList = async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await fetchTemplates();
-      setTemplateList(data);
+      const data = await fetchWbsCopyList();
+      const filteredData = data.filter(wbs => wbs.templateId === parseInt(templateId, 10));
+      setWbsList(filteredData);
     } catch (err) {
-      setError('Error fetching template list. Please try again later.');
+      setError('Error fetching WBS list. Please try again later.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadTemplates = async () => {
+    try {
+      const data = await fetchTemplates();
+      setTemplates(data);
+    } catch (err) {
+      console.error('Error fetching templates:', err);
     }
   };
 
@@ -69,7 +83,7 @@ export default function TemplatePage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = templateList.map((n) => n.templateId);
+      const newSelecteds = wbsList.map((n) => n.wbsId);
       setSelected(newSelecteds);
       return;
     }
@@ -95,18 +109,18 @@ export default function TemplatePage() {
   };
 
   const handleDeleteSelected = () => {
-    if (window.confirm(`Are you sure you want to delete ${selected.length} selected templates?`)) {
+    if (window.confirm(`Are you sure you want to delete ${selected.length} selected WBS?`)) {
       setLoading(true);
       setError(null);
 
-      const deletePromises = selected.map((templateId) => deleteTemplate(templateId));
+      const deletePromises = selected.map((wbsId) => deleteWbsCopy(wbsId));
 
       Promise.all(deletePromises)
-        .then(() => loadTemplateList())
+        .then(() => loadWbsList())
         .then(() => setSelected([]))
         .catch((err) => {
-          setError('Error deleting selected templates. Please try again later.');
-          console.error('Error deleting templates:', err);
+          setError('Error deleting selected WBS. Please try again later.');
+          console.error('Error deleting WBS:', err);
         })
         .finally(() => setLoading(false));
     }
@@ -126,20 +140,24 @@ export default function TemplatePage() {
     setFilterName(event.target.value);
   };
 
-  const handleEdit = (template) => {
-    setEditingTemplate(template);
+  const handleView = (wbsId) => {
+    navigate(`/activities-copy/${wbsId}`);
+  };
+
+  const handleEdit = (wbs) => {
+    setEditingWbs(wbs);
     setIsFormOpen(true);
   };
 
-  const handleDelete = async (templateId) => {
-    if (window.confirm('Are you sure you want to delete this template?')) {
+  const handleDelete = async (wbsId) => {
+    if (window.confirm('Are you sure you want to delete this WBS?')) {
       try {
         setLoading(true);
         setError(null);
-        await deleteTemplate(templateId);
-        await loadTemplateList();
+        await deleteWbsCopy(wbsId);
+        await loadWbsList();
       } catch (err) {
-        setError('Error deleting template. Please try again later.');
+        setError('Error deleting WBS. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -147,36 +165,34 @@ export default function TemplatePage() {
   };
 
   const handleAdd = () => {
-    setEditingTemplate(null);
+    setEditingWbs(null);
     setIsFormOpen(true);
   };
 
   const handleFormClose = () => {
     setIsFormOpen(false);
-    setEditingTemplate(null);
+    setEditingWbs(null);
   };
 
   const handleFormSubmit = async () => {
-    await loadTemplateList();
+    await loadWbsList();
     handleFormClose();
   };
 
   const dataFiltered = applyFilter({
-    inputData: templateList,
+    inputData: wbsList,
     comparator: getComparator(order, orderBy),
     filterName,
   });
-  
-  const handleView = (templateId) => {
-    navigate(`/activities-copy/${templateId}`);
-  };
 
   const notFound = !dataFiltered.length && !!filterName;
 
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Template List</Typography>
+        <Typography variant="h4">
+          WBS List for Template {templates.find(t => t.templateId === parseInt(templateId, 10))?.templateName}
+        </Typography>
 
         <Button
           variant="contained"
@@ -184,7 +200,19 @@ export default function TemplatePage() {
           startIcon={<Iconify icon="eva:plus-fill" />}
           onClick={handleAdd}
         >
-          New Template
+          New WBS
+        </Button>
+      </Stack>
+      
+      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+        <Button
+          component={Link}
+          to="/template"
+          variant="outlined"
+          color="primary"
+          startIcon={<Iconify icon="eva:arrow-back-fill" />}
+        >
+          Back to Templates
         </Button>
       </Stack>
 
@@ -195,7 +223,7 @@ export default function TemplatePage() {
       )}
 
       <Card>
-        <TemplateTableToolbar
+        <WbsTableToolbar
           numSelected={selected.length}
           filterName={filterName}
           onFilterName={handleFilterByName}
@@ -210,36 +238,40 @@ export default function TemplatePage() {
               </Stack>
             ) : (
               <Table sx={{ minWidth: 800 }}>
-                <TemplateTableHead
+                <WbsTableHead
                   order={order}
                   orderBy={orderBy}
-                  rowCount={templateList.length}
+                  rowCount={wbsList.length}
                   numSelected={selected.length}
                   onRequestSort={handleSort}
                   onSelectAllClick={handleSelectAllClick}
                   headLabel={[
-                    { id: 'templateName', label: 'Template Name', align: 'left' },
-                    { id: '', label: 'Actions', align: 'center' },
+                    { id: 'name', label: 'Name', align: 'left' },
+                    { id: 'date', label: 'Date', align: 'left' },
+                    { id: 'template', label: 'Template', align: 'left' },
+                    { id: 'activities', label: 'Activities', align: 'center' },
+                    { id: '', label: 'Actions' },
                   ]}
                 />
                 <TableBody>
                   {dataFiltered
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => (
-                      <TemplateTableRow
-                        key={row.templateId}
+                      <WbsTableRow
+                        key={row.wbsId}
                         row={row}
-                        selected={selected.indexOf(row.templateId) !== -1}
-                        handleClick={(event) => handleClick(event, row.templateId)}
-                        onView={() => handleView(row.templateId)}
+                        selected={selected.indexOf(row.wbsId) !== -1}
+                        handleClick={(event) => handleClick(event, row.wbsId)}
+                        onView={() => handleView(row.wbsId)}
                         onEdit={() => handleEdit(row)}
-                        onDelete={() => handleDelete(row.templateId)}
+                        onDelete={() => handleDelete(row.wbsId)}
+                        templateName={templates.find(t => t.templateId === row.templateId)?.templateName || 'N/A'}
                       />
                     ))}
 
                   <TableEmptyRows
                     height={77}
-                    emptyRows={emptyRows(page, rowsPerPage, templateList.length)}
+                    emptyRows={emptyRows(page, rowsPerPage, wbsList.length)}
                   />
 
                   {notFound && <TableNoData query={filterName} />}
@@ -252,7 +284,7 @@ export default function TemplatePage() {
         <TablePagination
           page={page}
           component="div"
-          count={templateList.length}
+          count={wbsList.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[10, 15, 25]}
@@ -260,11 +292,11 @@ export default function TemplatePage() {
         />
       </Card>
 
-      <TemplateForm
+      <WbsForm
         open={isFormOpen}
         onClose={handleFormClose}
         onSubmit={handleFormSubmit}
-        template={editingTemplate}
+        wbs={editingWbs}
       />
     </Container>
   );

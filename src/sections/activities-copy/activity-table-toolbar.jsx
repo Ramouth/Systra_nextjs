@@ -14,7 +14,7 @@ export default function ActivityTableToolbar({ filterName, onFilterName }) {
   return (
     <Toolbar
       sx={{
-        height: 50,
+        height: 96,
         display: 'flex',
         justifyContent: 'space-between',
         p: (theme) => theme.spacing(0, 1, 0, 3),
@@ -28,16 +28,10 @@ export default function ActivityTableToolbar({ filterName, onFilterName }) {
           <InputAdornment position="start">
             <Iconify
               icon="eva:search-fill"
-              sx={{ color: 'text.disabled', width: 14, height: 14 }}
+              sx={{ color: 'text.disabled', width: 20, height: 20 }}
             />
           </InputAdornment>
         }
-        sx={{
-          height: 30, // Adjusts the height of the search box
-          fontSize: 14, // Adjusts font size within the input
-          width: 180, // Adjusts the width of the search box
-          padding: 0, // Reduces padding inside the input for a tighter appearance
-        }}
       />
 
       <Tooltip title="Filter list">

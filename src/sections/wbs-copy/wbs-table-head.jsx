@@ -27,7 +27,6 @@ export default function WbsTableHead({
   return (
     <TableHead>
       <TableRow>
-        
         <TableCell padding="checkbox" sx={{ pl: 3 }}>
           <Checkbox
             indeterminate={numSelected > 0 && numSelected < rowCount}

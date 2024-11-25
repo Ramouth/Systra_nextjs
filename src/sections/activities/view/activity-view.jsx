@@ -1,4 +1,5 @@
 // src/sections/activities/view/activity-view.jsx
+import * as XLSX from 'xlsx';
 import PropTypes from 'prop-types';
 import { Link, useParams } from 'react-router-dom';
 import React, { useState, useEffect, useCallback } from 'react';
@@ -18,6 +19,7 @@ import {
   Table,
   Stack,
   Button,
+  Tooltip,
   MenuItem,
   TableRow,
   Collapse,
@@ -41,22 +43,29 @@ import ActivityTableToolbar from '../activity-table-toolbar';
 
 
 const ActivityRow = ({ activity, level, parentIndex, onEdit, onDelete, onAddSubActivity, provided }) => {
-    const [open, setOpen] = useState(false);
-    const [anchorEl, setAnchorEl] = useState(null);
-    const fullIndex = parentIndex ? `${parentIndex}.${activity.indexNo}` : activity.indexNo;
-  
-    const handleOpenMenu = (event) => {
-      setAnchorEl(event.currentTarget);
-    };
-  
-    const handleCloseMenu = () => {
-      setAnchorEl(null);
-    };
-  
-    return (
-      <>
-        <TableRow ref={provided.innerRef} {...provided.draggableProps}>
-          <TableCell sx={{ width: '80px', padding: '0 20px' }}>
+  const [open, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const fullIndex = parentIndex ? `${parentIndex}.${activity.indexNo}` : activity.indexNo;
+
+  const handleOpenMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+  const truncateDescription = (description) => {
+    const words = description.split(' ');
+    if (words.length > 1) {
+      return `${words.slice(0, 1).join(' ')} ...`;
+    }
+    return description;
+  };
+
+  return (
+    <>
+      <TableRow ref={provided.innerRef} {...provided.draggableProps}>
+        <TableCell sx={{ width: '80px', padding: '0 20px' }}>
           <Stack direction="row" alignItems="center" spacing={1}>
             <Box {...provided.dragHandleProps}>
               <DragIndicatorIcon />
@@ -72,92 +81,110 @@ const ActivityRow = ({ activity, level, parentIndex, onEdit, onDelete, onAddSubA
             )}
           </Stack>
         </TableCell>
-          <TableCell>{fullIndex}</TableCell>
-          <TableCell style={{ paddingLeft: `${level * 10}px` }}>{activity.activityName}</TableCell>
-          <TableCell>{activity.description || 'N/A'}</TableCell>
-          <TableCell>{activity.time || 'N/A'}</TableCell>
-          <TableCell>{activity.repetitions || 'N/A'}</TableCell>
-          <TableCell>{activity.cadAdmins || 'N/A'}</TableCell>
-          <TableCell>{activity.cadCoords || 'N/A'}</TableCell>
-          <TableCell>{activity.sum || 'N/A'}</TableCell>
-          <TableCell>
-            <IconButton onClick={() => onAddSubActivity(activity)}>
-              <AddIcon />
-            </IconButton>
-            <IconButton onClick={handleOpenMenu}>
-              <MoreVertIcon />
-            </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleCloseMenu}
-            >
-              <MenuItem onClick={() => {
-                onEdit(activity);
-                handleCloseMenu();
-              }}>
-                <EditIcon sx={{ mr: 2 }} />
-                Edit
-              </MenuItem>
-              <MenuItem onClick={() => {
-                onDelete(activity.activityID);
-                handleCloseMenu();
-              }} sx={{ color: 'error.main' }}>
-                <DeleteIcon sx={{ mr: 2 }} />
-                Delete
-              </MenuItem>
-            </Menu>
+        <TableCell>{fullIndex}</TableCell>
+        <TableCell>{activity.activityName}</TableCell>
+        <TableCell>
+          <Tooltip title={activity.description || '- '} arrow>
+            <span>{activity.description ? truncateDescription(activity.description) : ' -'}</span>
+          </Tooltip>
+        </TableCell>
+        <TableCell>{activity.time || '-'}</TableCell>
+        <TableCell>{activity.repetitions || '-'}</TableCell>
+        <TableCell>{activity.cadAdmins || '-'}</TableCell>
+        <TableCell>{activity.cadCoords || '-'}</TableCell>
+        <TableCell>{activity.sum || '-'}</TableCell>
+        <TableCell>
+          <IconButton onClick={() => onAddSubActivity(activity)}>
+            <AddIcon />
+          </IconButton>
+          <IconButton onClick={handleOpenMenu}>
+            <MoreVertIcon />
+          </IconButton>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleCloseMenu}
+          >
+            <MenuItem onClick={() => {
+              onEdit(activity);
+              handleCloseMenu();
+            }}>
+              <EditIcon sx={{ mr: 2 }} />
+              Edit
+            </MenuItem>
+            <MenuItem onClick={() => {
+              onDelete(activity.activityID);
+              handleCloseMenu();
+            }} sx={{ color: 'error.main' }}>
+              <DeleteIcon sx={{ mr: 2 }} />
+              Delete
+            </MenuItem>
+          </Menu>
+        </TableCell>
+      </TableRow>
+      {activity.sub_activities && activity.sub_activities.length > 0 && (
+        <TableRow>
+          <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={10}>
+            <Collapse in={open} timeout="auto" unmountOnExit>
+              <Box sx={{ margin: 0, padding: 0 }}>
+                <Table size="medium">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ width: '60px' }} />
+                      <TableCell>Index</TableCell>
+                      <TableCell>Name</TableCell>
+                      <TableCell>Description</TableCell>
+                      <TableCell>Time</TableCell>
+                      <TableCell>Repetitions</TableCell>
+                      <TableCell>CAD Admins</TableCell>
+                      <TableCell>CAD Coords</TableCell>
+                      <TableCell>Sum</TableCell>
+                      <TableCell>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <NestedActivityList
+                    activities={activity.sub_activities}
+                    parentId={activity.activityID}
+                    level={level + 1}
+                    parentIndex={fullIndex}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                    onAddSubActivity={onAddSubActivity}
+                  />
+                </Table>
+              </Box>
+            </Collapse>
           </TableCell>
         </TableRow>
-        {activity.sub_activities && activity.sub_activities.length > 0 && (
-          <TableRow>
-            <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={10}>
-              <Collapse in={open} timeout="auto" unmountOnExit>
-                {/* <Box sx={{ margin: 1 }}> */}
-                  <Table size="medium">
-                    <NestedActivityList
-                      activities={activity.sub_activities}
-                      parentId={activity.activityID}
-                      level={level + 1}
-                      parentIndex={fullIndex}
-                      onEdit={onEdit}
-                      onDelete={onDelete}
-                      onAddSubActivity={onAddSubActivity}
-                    />
-                  </Table>
-                {/* </Box> */}
-              </Collapse>
-            </TableCell>
-          </TableRow>
-        )}
-      </>
-    );
-  };
-  
-  const NestedActivityList = ({ activities, parentId, level, parentIndex, onEdit, onDelete, onAddSubActivity }) => (
-    <Droppable droppableId={`droppable-${parentId}`} type={`${level}`}>
-      {(provided) => (
-        <TableBody ref={provided.innerRef} {...provided.droppableProps}>
-          {activities.map((activity, index) => (
-            <Draggable key={activity.activityID} draggableId={activity.activityID.toString()} index={index}>
-              {(providedDraggable) => (
-                <ActivityRow
-                  activity={activity}
-                  level={level}
-                  parentIndex={parentIndex}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                  onAddSubActivity={onAddSubActivity}
-                  provided={providedDraggable}
-                />
-              )}
-            </Draggable>
-          ))}
-          {provided.placeholder}
-        </TableBody>
       )}
-    </Droppable>
+    </>
   );
+};
+
+const NestedActivityList = ({ activities, parentId, level, parentIndex, onEdit, onDelete, onAddSubActivity }) => (
+  <Droppable droppableId={`droppable-${parentId}`} type={`${level}`}>
+    {(provided) => (
+      <TableBody ref={provided.innerRef} {...provided.droppableProps}>
+        {activities.map((activity, index) => (
+          <Draggable key={activity.activityID} draggableId={activity.activityID.toString()} index={index}>
+            {(providedDraggable) => (
+              <ActivityRow
+                activity={activity}
+                level={level}
+                parentIndex={parentIndex}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onAddSubActivity={onAddSubActivity}
+                provided={providedDraggable}
+              />
+            )}
+          </Draggable>
+        ))}
+        {provided.placeholder}
+      </TableBody>
+    )}
+  </Droppable>
+);
 
 
 ActivityRow.propTypes = {
@@ -204,14 +231,16 @@ export default function ActivityView() {
   const [editingActivity, setEditingActivity] = useState(null);
   const [parentActivity, setParentActivity] = useState(null);
   const [filterName, setFilterName] = useState('');
-
-  const sortActivities = useCallback((activities) => activities
-  .sort((a, b) => parseInt(a.indexNo, 10) - parseInt(b.indexNo, 10))
-  .map(activity => ({
-    ...activity,
-    sub_activities: activity.sub_activities ? sortActivities(activity.sub_activities) : []
-  })), []);
+  const [adminHeader, setAdminHeader] = useState('CAD Admins');
+  const [coordHeader, setCoordHeader] = useState('CAD Coords');
   
+  const sortActivities = useCallback((activities) => activities
+    .sort((a, b) => parseInt(a.indexNo, 10) - parseInt(b.indexNo, 10))
+    .map(activity => ({
+      ...activity,
+      sub_activities: activity.sub_activities ? sortActivities(activity.sub_activities) : []
+    })), []);
+
   const loadWbs = useCallback(async () => {
     try {
       setLoading(true);
@@ -219,13 +248,16 @@ export default function ActivityView() {
       const data = await fetchWbsById(wbsId);
       data.activities = sortActivities(data.activities);
       setWbs(data);
+      // Set the header names if they exist in the response
+      if (data.cadAdmins) setAdminHeader(data.cadAdmins);
+      if (data.cadCoords) setCoordHeader(data.cadCoords);
     } catch (err) {
       setError('Error fetching WBS activities. Please try again later.');
     } finally {
       setLoading(false);
     }
   }, [wbsId, sortActivities]);
-  
+
   useEffect(() => {
     loadWbs();
   }, [loadWbs]);
@@ -261,14 +293,14 @@ export default function ActivityView() {
     if (sourceParentId === 'root') {
       moveActivity(newActivities);
     } else {
-        const findAndMove = (activities) => {
-            const activity = activities.find(act => act.activityID.toString() === sourceParentId);
-            if (activity) {
-              moveActivity(activity.sub_activities);
-              return true;
-            }
-            return activities.some(act => act.sub_activities && findAndMove(act.sub_activities));
-          };
+      const findAndMove = (activities) => {
+        const activity = activities.find(act => act.activityID.toString() === sourceParentId);
+        if (activity) {
+          moveActivity(activity.sub_activities);
+          return true;
+        }
+        return activities.some(act => act.sub_activities && findAndMove(act.sub_activities));
+      };
       findAndMove(newActivities);
     }
 
@@ -276,7 +308,7 @@ export default function ActivityView() {
 
     try {
       // Update activities in the backend
-      const updatePromises = newActivities.flatMap(activity => 
+      const updatePromises = newActivities.flatMap(activity =>
         getUpdatePromises(activity)
       );
       await Promise.all(updatePromises);
@@ -288,7 +320,7 @@ export default function ActivityView() {
   const getUpdatePromises = (activity) => {
     let promises = [updateActivity(activity.activityID, activity)];
     if (activity.sub_activities) {
-      promises = promises.concat(activity.sub_activities.flatMap(subActivity => 
+      promises = promises.concat(activity.sub_activities.flatMap(subActivity =>
         getUpdatePromises(subActivity)
       ));
     }
@@ -336,15 +368,15 @@ export default function ActivityView() {
         await updateActivity(editingActivity.activityID, {
           ...activityData,
           wbsId: parseInt(wbsId, 10),
-          parentActivityId: editingActivity.parentActivityId,
-          templateId: editingActivity.templateId || 0
+          parentActivityId: editingActivity.parentActivityId ? editingActivity.parentActivityId : null,
+          templateId: editingActivity.templateId ? editingActivity : null
         });
       } else {
         await createActivity({
           ...activityData,
           wbsId: parseInt(wbsId, 10),
-          parentActivityId: parentActivity ? parentActivity.activityID : 0,
-          templateId: 0
+          parentActivityId: parentActivity ? parentActivity.activityID : null,
+          templateId: null
         });
       }
       await loadWbs();
@@ -358,9 +390,79 @@ export default function ActivityView() {
     setFilterName(event.target.value);
   };
 
+  const handleExportToExcel = () => {
+    const flattenActivities = (activities, parentIndex = '') =>
+      activities.flatMap((activity, index) => {
+        const currentIndex = parentIndex ? `${parentIndex}.${index + 1}` : `${index + 1}`;
+        const currentActivityData = {
+          Index: currentIndex,
+          Name: activity.activityName,
+          Description: activity.description || '-',
+          Time: activity.time || '-',
+          Repetitions: activity.repetitions || '-',
+          CAD_Admins: activity.cadAdmins || '-',
+          CAD_Coords: activity.cadCoords || '-',
+          Sum: activity.sum || '-'
+        };
+
+        // Recursively flatten sub-activities
+        const subActivitiesData = activity.sub_activities
+          ? flattenActivities(activity.sub_activities, currentIndex)
+          : [];
+
+        return [currentActivityData, ...subActivitiesData];
+      });
+
+    // Get flattened activity data
+    const data = flattenActivities(filteredActivities);
+
+    // Transform data to display multi-level Index with full hierarchy in Sub_Index and Sub_Sub_Index
+    const formattedData = data.map((activity) => {
+      const indexParts = activity.Index.split(".");
+
+      return {
+        Main_Index: indexParts.length === 1 ? activity.Index : "",          // Display in Main_Index only for top level
+        Sub_Index: indexParts.length === 2 ? activity.Index : "",           // Display full "2.1" format for second level
+        Sub_Sub_Index: indexParts.length === 3 ? activity.Index : "",       // Display full "2.1.1" format for third level
+        Name: activity.Name,
+        Description: activity.Description,
+        Time: activity.Time,
+        Repetitions: activity.Repetitions,
+        CAD_Admins: activity.CAD_Admins,
+        CAD_Coords: activity.CAD_Coords,
+        Sum: activity.Sum
+      };
+    });
+
+    // Convert formatted data to worksheet and export to Excel
+    const worksheet = XLSX.utils.json_to_sheet(formattedData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Activities");
+    XLSX.writeFile(workbook, "activities.xlsx");
+  };
+
+
+  const calculateTotal = (activities, property) =>
+    activities.reduce(
+      (total, activity) =>
+        total + (parseFloat(activity[property]) || 0) + (activity.sub_activities ? calculateTotal(activity.sub_activities, property) : 0),
+      0
+    );
+
+  const formatNumberWithDots = (value) =>
+    value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
   const filteredActivities = wbs ? wbs.activities.filter((activity) =>
     activity.activityName.toLowerCase().includes(filterName.toLowerCase())
   ) : [];
+
+  // Total calculations for all relevant fields
+  const totalTime = calculateTotal(filteredActivities, 'time');
+  const totalRepetitions = calculateTotal(filteredActivities, 'repetitions');
+  const totalCadAdmins = calculateTotal(filteredActivities, 'cadAdmins');
+  const totalCadCoords = calculateTotal(filteredActivities, 'cadCoords');
+  const totalSum = calculateTotal(filteredActivities, 'sum');
+
 
   if (loading) return <CircularProgress />;
   if (error) return <Typography color="error">{error}</Typography>;
@@ -393,6 +495,14 @@ export default function ActivityView() {
         >
           Back to WBS List
         </Button>
+        {/* Add Export Button here */}
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={handleExportToExcel}
+        >
+          Export to Excel
+        </Button>
       </Stack>
 
       <Card>
@@ -406,17 +516,17 @@ export default function ActivityView() {
             <DragDropContext onDragEnd={handleDragEnd}>
               <Table sx={{ minWidth: 800 }}>
                 <TableHead>
-                  <TableRow>                 
-                    <TableCell sx={{ width: '60px' }} />
-                    <TableCell>Index</TableCell>
-                    <TableCell>Name</TableCell>
-                    <TableCell>Description</TableCell>
-                    <TableCell>Time</TableCell>
-                    <TableCell>Repetitions</TableCell>
-                    <TableCell>CAD Admins</TableCell>
-                    <TableCell>CAD Coords</TableCell>
-                    <TableCell>Sum</TableCell>
-                    <TableCell>Actions</TableCell>
+                  <TableRow>
+                    <TableCell style={{ fontWeight: 'bold', color: 'grey' }} />
+                    <TableCell style={{ fontWeight: 'bold' }}>Index</TableCell>
+                    <TableCell style={{ fontWeight: 'bold' }}>Name</TableCell>
+                    <TableCell style={{ fontWeight: 'bold' }}>Description</TableCell>
+                    <TableCell style={{ fontWeight: 'bold' }}>Time</TableCell>
+                    <TableCell style={{ fontWeight: 'bold' }}>Repetitions</TableCell>
+                    <TableCell style={{ fontWeight: 'bold' }}>{adminHeader}</TableCell>
+                    <TableCell style={{ fontWeight: 'bold' }}>{coordHeader}</TableCell>
+                    <TableCell style={{ fontWeight: 'bold' }}>Sum</TableCell>
+                    <TableCell style={{ fontWeight: 'bold' }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <NestedActivityList
@@ -427,6 +537,19 @@ export default function ActivityView() {
                   onDelete={handleDelete}
                   onAddSubActivity={handleAddSubActivity}
                 />
+                {/* Total row for sums */}
+                <TableBody>
+                  <TableRow style={{ backgroundColor: '#FFFFFF', fontWeight: 'bold' }}>
+                    <TableCell colSpan={4} style={{ textAlign: 'Left', fontWeight: 'bold' }}>Total:</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: 'black' }}>{formatNumberWithDots(totalTime)}</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: 'black' }} >{formatNumberWithDots(totalRepetitions)}</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: 'black' }} >{formatNumberWithDots(totalCadAdmins)}</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: 'black' }} >{formatNumberWithDots(totalCadCoords)}</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: 'black' }}>{formatNumberWithDots(totalSum)}</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: 'black' }}>{}</TableCell>
+
+                  </TableRow>
+                </TableBody>
               </Table>
             </DragDropContext>
           </TableContainer>

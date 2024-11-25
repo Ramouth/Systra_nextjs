@@ -7,6 +7,7 @@ import {
   Stack,
   Alert,
   Button,
+  Snackbar,
   TableBody,
   Container,
   Typography,
@@ -25,7 +26,8 @@ import WbsTableHead from '../wbs-table-head';
 import TableEmptyRows from '../table-empty-rows';
 import WbsTableToolbar from '../wbs-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
-import { deleteWbs, fetchWbsList, fetchTemplates } from '../../../api/wbsApi';
+import { deleteWbs, fetchWbsList, fetchTemplates, saveActivitiesToTemplate } from '../../../api/wbsApi';
+
 
 export default function WbsPage() {
   const [page, setPage] = useState(0);
@@ -40,6 +42,8 @@ export default function WbsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingWbs, setEditingWbs] = useState(null);
   const [templates, setTemplates] = useState([]);
+  const [successMessage, setSuccessMessage] = useState('');
+
 
   const navigate = useNavigate();
 
@@ -109,9 +113,9 @@ export default function WbsPage() {
     if (window.confirm(`Are you sure you want to delete ${selected.length} selected WBS?`)) {
       setLoading(true);
       setError(null);
-      
+
       const deletePromises = selected.map((wbsId) => deleteWbs(wbsId));
-  
+
       Promise.all(deletePromises)
         .then(() => loadWbsList())
         .then(() => setSelected([]))
@@ -158,6 +162,19 @@ export default function WbsPage() {
       } finally {
         setLoading(false);
       }
+    }
+  };
+  const handleSave = async (wbsId, templateData) => {
+    try {
+      setLoading(true);
+      setError(null);
+      await saveActivitiesToTemplate(wbsId, templateData);
+      setSuccessMessage('Activities saved to template successfully');
+      await loadTemplates();
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Error saving activities to template. Please try again later.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -248,7 +265,10 @@ export default function WbsPage() {
                         onView={() => handleView(row.wbsId)}
                         onEdit={() => handleEdit(row)}
                         onDelete={() => handleDelete(row.wbsId)}
-                        templateName={templates.find(t => t.templateId === row.templateId)?.templateName || 'N/A'}
+                        onSave={handleSave}
+                        templateName={templates.find(t => t.templateId === row.templateId)?.templateName || ''}
+                        templates={templates}
+
                       />
                     ))}
 
@@ -281,6 +301,19 @@ export default function WbsPage() {
         onSubmit={handleFormSubmit}
         wbs={editingWbs}
       />
+      <Snackbar
+        open={!!successMessage}
+        autoHideDuration={6000}
+        onClose={() => setSuccessMessage('')}
+      >
+        <Alert
+          onClose={() => setSuccessMessage('')}
+          severity="success"
+          sx={{ width: '100%' }}
+        >
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }

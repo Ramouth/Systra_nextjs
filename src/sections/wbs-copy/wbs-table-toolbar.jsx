@@ -15,7 +15,7 @@ export default function WbsTableToolbar({ numSelected, filterName, onFilterName,
   return (
     <Toolbar
       sx={{
-        height: 30,
+        height: 96,
         display: 'flex',
         justifyContent: 'space-between',
         p: (theme) => theme.spacing(0, 1, 0, 3),
@@ -42,12 +42,6 @@ export default function WbsTableToolbar({ numSelected, filterName, onFilterName,
               />
             </InputAdornment>
           }
-          sx={{
-            height: 28, // Adjusts the height of the search box
-            fontSize: 14, // Adjusts font size within the input
-            width: 150, // Adjusts the width of the search box
-            padding: 0, // Reduces padding inside the input for a tighter appearance
-          }}
         />
       )}
 

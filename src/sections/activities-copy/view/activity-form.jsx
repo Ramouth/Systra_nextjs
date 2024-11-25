@@ -2,17 +2,15 @@
 import PropTypes from 'prop-types';
 import React, { useState, useEffect } from 'react';
 
-// MUI Components
 import {
-    Grid,
-    Dialog,
-    Button,
-    TextField,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
+  Grid,
+  Dialog,
+  Button,
+  TextField,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
-
 
 function ActivityForm({ open, onClose, onSubmit, activity, wbsId, isSubActivity }) {
     const [formData, setFormData] = useState({
@@ -24,11 +22,11 @@ function ActivityForm({ open, onClose, onSubmit, activity, wbsId, isSubActivity 
         cadAdmins: 0,
         cadCoords: 0,
         sum: 0,
-        wbsId,
+        // wbsId,
         parentActivityId: 0,
         templateId: 0
     });
-    
+
     useEffect(() => {
         if (activity) {
             setFormData({
@@ -40,7 +38,7 @@ function ActivityForm({ open, onClose, onSubmit, activity, wbsId, isSubActivity 
                 cadAdmins: activity.cadAdmins || 0,
                 cadCoords: activity.cadCoords || 0,
                 sum: activity.time * activity.repetitions || 0,
-                wbsId: activity.wbsId || wbsId,
+                // wbsId: activity.wbsId || wbsId,
                 parentActivityId: activity.parentActivityId || 0,
                 templateId: activity.templateId || 0
             });
@@ -54,7 +52,7 @@ function ActivityForm({ open, onClose, onSubmit, activity, wbsId, isSubActivity 
                 cadAdmins: 0,
                 cadCoords: 0,
                 sum: 0,
-                wbsId,
+                // wbsId,
                 parentActivityId: 0,
                 templateId: 0
             });
@@ -71,16 +69,6 @@ function ActivityForm({ open, onClose, onSubmit, activity, wbsId, isSubActivity 
             return newData;
         });
     };
-/*
-    const handleLabelChange = (e) => {
-        const { name, value } = e.target;
-        if (name === 'cadAdminsLabel') {
-            setCustomCadAdminsLabel(value);
-        } else if (name === 'cadCoordsLabel') {
-            setCustomCadCoordsLabel(value);
-        }
-    };
-    */
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -158,24 +146,24 @@ function ActivityForm({ open, onClose, onSubmit, activity, wbsId, isSubActivity 
                             <TextField
                                 margin="dense"
                                 name="cadAdmins"
-                                label="CadAdmins"
+                                label="CAD Admins"
                                 type="number"
                                 fullWidth
                                 value={formData.cadAdmins}
                                 onChange={handleChange}
-                                disabled={!isSubActivity} 
+                                disabled={!isSubActivity}
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 margin="dense"
                                 name="cadCoords"
-                                label= "CadCoords"
+                                label="CAD Coords"
                                 type="number"
                                 fullWidth
                                 value={formData.cadCoords}
                                 onChange={handleChange}
-                                disabled={!isSubActivity} 
+                                disabled={!isSubActivity}
                             />
                         </Grid>
                         <Grid item xs={12}>
